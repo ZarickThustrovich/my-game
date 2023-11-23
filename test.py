@@ -9,14 +9,15 @@ res = (720, 720)
 screen = pygame.display.set_mode(res)
 running = True
 is_menu = True
+clock = pygame.time.Clock()
 
 
 class Apple:
     def __init__(self, screen):
         self.screen = screen
         self.color = (222, 25, 22)
-        self.x_coord = randint(20, res[0] - 20)
-        self.y_coord = randint(20, res[0] - 20)
+        self.x_coord = round(randint(20, res[0] - 20) / 20) * 20
+        self.y_coord = round(randint(20, res[0] - 20) / 20) * 20
         self.exist = True
     
     def draw(self):
@@ -37,39 +38,28 @@ class Snake:
     def __init__(self, screen, game):
         self.screen = screen
         self.game = game
-        self.x_coord = 10
-        self.y_coord = 10
+        self.x_coord = 0
+        self.y_coord = 0
         self.color = (222, 25, 22)
         self.rects = [[self.x_coord, self.y_coord]]
-        self.last_direction = None
+        self.last_direction = 'right'
 
     def draw(self):
         new_rects = []
-        if self.last_direction == None:
-            new_rects = self.rects
-            for rectangle in new_rects:
-                rectangle_x, rectangle_y = rectangle
-                rect = pygame.Rect(rectangle_x, rectangle_y, 20, 20)
-                pygame.draw.rect(self.screen, self.color, rect)
-            return 0
-        print('fucntion started ', self.rects)
-        if self.check_collision():
-            rect = pygame.Rect(self.x_coord, self.y_coord, 20, 20)
-            return pygame.draw.rect(self.screen, self.color, rect)
+            # rect = pygame.Rect(self.x_coord, self.y_coord, 20, 20)
+            # return pygame.draw.rect(self.screen, self.color, rect)
         if self.last_direction == 'down':
-            for rect_x, rect_y in self.rects:
-                new_rects.append([rect_x, rect_y + 20])
+            new_rects = self.rects[:-1]
+            new_rects.insert(0, [self.rects[0][0], self.rects[0][1] + 20])
         elif self.last_direction == 'up':
-            for rect_x, rect_y in self.rects:
-                new_rects.append([rect_x, rect_y - 20])
+            new_rects = self.rects[:-1]
+            new_rects.insert(0, [self.rects[0][0], self.rects[0][1] - 20])
         elif self.last_direction == 'left':
-            for rect_x, rect_y in self.rects:
-                new_rects.append([rect_x - 20, rect_y])
+            new_rects = self.rects[:-1]
+            new_rects.insert(0, [self.rects[0][0] - 20, self.rects[0][1]])
         elif self.last_direction == 'right':
-            for rect_x, rect_y in self.rects:
-                new_rects.append([rect_x + 20, rect_y])
-        else:
-            new_rects = self.rects
+            new_rects = self.rects[:-1]
+            new_rects.insert(0, [self.rects[0][0] + 20, self.rects[0][1]])
         for rectangle in new_rects:
             rectangle_x, rectangle_y = rectangle
             rect = pygame.Rect(rectangle_x, rectangle_y, 20, 20)
@@ -77,45 +67,62 @@ class Snake:
         self.rects = new_rects
         self.x_coord = self.rects[0][0]
         self.y_coord = self.rects[0][1]
-        print('fucntion ended ', self.rects)
-    
+        if self.check_collision():
+            global snake
+            snake = Snake(game=pygame, screen=screen)
+            call_menu()
+        elif self.check_self_collision():
+            call_menu()
+            
     def set_last_direction(self, direction):
-        self.last_direction = direction
+        if direction == 'up' and self.last_direction != 'down':
+            self.last_direction = direction
+        elif direction == 'down' and self.last_direction != 'up':
+            self.last_direction = direction
+        elif direction == 'right' and self.last_direction != 'left':
+            self.last_direction = direction
+        elif direction == 'left' and self.last_direction != 'right':
+            self.last_direction = direction
     
     def make_longer(self):
-        new_x_coord = self.x_coord
-        new_y_coord = self.y_coord
-        
+        new_x_coord, new_y_coord = self.rects[len(self.rects) - 1]
         if self.last_direction == 'down':
-            new_x_coord = self.x_coord + 20
+            new_x_coord -= 20
         elif self.last_direction == 'up':
-            new_y_coord = self.y_coord - 20
+            new_y_coord += 20
         elif self.last_direction == 'left':
-            new_x_coord = self.x_coord - 20
+            new_x_coord += 20
         elif self.last_direction == 'right':
-            new_x_coord = self.x_coord + 20
+            new_x_coord -= 20
         
         self.x_coord = new_x_coord
         self.y_coord = new_y_coord
-        self.rects.append([new_x_coord, new_y_coord])
+        self.rects.append([self.x_coord, self.y_coord])
 
+    def check_self_collision(self):
+        check_x, check_y = self.rects[0]
+        print('check_x, check_y = ', check_x, check_y)
+        print(self.rects)
+        for body_part_x, body_part_y in self.rects[4:]:
+            if (abs(check_x - body_part_x) <= 1 and abs(check_y - body_part_y) <= 1):
+                return True
+        return False
         
-    
     def get_coords(self):
         return self.x_coord, self.y_coord
 
     def check_collision(self):
         if self.last_direction == 'down':
-            if self.y_coord >= 690:
+            if self.y_coord > 720:
                 return True
         elif self.last_direction == 'up':
-            if self.y_coord <= 20:
+            if self.y_coord <= 0:
                 return True
         elif self.last_direction == 'left':
-            if self.x_coord < 20:
+            if self.x_coord <= 0:
                 return True
         elif self.last_direction == 'right':
-            if self.x_coord > 680:
+            if self.x_coord > 720:
                 return True
         else:
             return False
@@ -133,9 +140,9 @@ def start_game():
     is_menu = False
 
 def menu():
-    screen.fill((255, 0, 0))
+    screen.fill((255, 255, 255)) 
     pygame.display.update()
-
+    
 def gameplay():
     global apple
     if not apple.is_exist():
@@ -144,19 +151,13 @@ def gameplay():
     
     if event.type == KEYDOWN:
         if event.key == K_DOWN:
-            # snake.move('down')
             snake.set_last_direction('down')
         elif event.key == K_UP:
-            # snake.move('up')
             snake.set_last_direction('up')
         elif event.key == K_LEFT:
-            # snake.move('left')
             snake.set_last_direction('left')
         elif event.key == K_RIGHT:
-            # snake.move('right')
             snake.set_last_direction('right')
-    else:
-        snake.set_last_direction(None)
     
     snake.draw()
     apple.draw()
@@ -164,11 +165,10 @@ def gameplay():
     apple_x, apple_y = apple.get_coords()
     snake_x, snake_y = snake.get_coords()
     
-    if (abs(snake_x - apple_x) <= 30 and abs(apple_y - snake_y) <= 30):
+    if (abs(snake_x - apple_x) <= 1 and abs(apple_y - snake_y) <= 1):
         apple.remove()
         snake.make_longer()
         
-    # Update the display
     pygame.display.update()
 
 while running:
@@ -186,7 +186,8 @@ while running:
     else:
         gameplay()
 
-    pygame.time.delay(10)  # Added a small delay to reduce CPU usage
+    pygame.time.delay(10) 
+    clock.tick(16)
 
 pygame.quit()
 sys.exit()
