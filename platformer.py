@@ -81,10 +81,10 @@ class Player:
     def set_last_direction(self, direction):
         self.last_direction = direction
     
-    def idle(self, direction):
-        reversed = direction == 'left'
+    def idle(self):
+        reversed = self.last_direction == 'left'
         # print(f'idle: accelerate={self.accelerate_to["idle"]}')
-        self.image = SpriteSheet(self.width, self.height, 'idle_1', False, self.actions_counter['idle'], 4)
+        self.image = SpriteSheet(self.width, self.height, 'idle_1', reversed, self.actions_counter['idle'], 4)
         sprite = self.image.get_sprite()
         screen.blit(sprite, (self.x, self.y, self.width, self.height))
         pygame.display.flip()
@@ -225,7 +225,7 @@ def gameplay():
             player.move_crouch('right')
         else:
             player.set_last_direction('right')
-            player.idle('right')
+            player.idle()
         return 0
     elif keys[pygame.K_LEFT] and keys[pygame.K_DOWN]:
         if player.last_direction == 'left':
@@ -233,7 +233,7 @@ def gameplay():
             player.move_crouch('left')
         else:
             player.set_last_direction('left')
-            player.idle('left')
+            player.idle()
         return 0
     elif (keys[pygame.K_LEFT] and keys[pygame.K_UP]):
         if not player.falling:
@@ -258,7 +258,7 @@ def gameplay():
             player.move()
         else:
             player.set_last_direction('right')
-            player.idle('right')
+            player.idle()
         return 0
     elif keys[pygame.K_LEFT]:
         if player.last_direction == 'left':
@@ -266,14 +266,14 @@ def gameplay():
             player.move()
         else:
             player.set_last_direction('left')
-            player.idle('left')
+            player.idle()
         return 0
     elif keys[pygame.K_UP or pygame.K_SPACE]:
         if not player.falling:
             player.jump(None)
             return 0
-    player.idle(player.last_direction)
-    if player.last_direction == 'idle':
+    player.idle()
+    if player.actions_counter['idle'] > 0:
         player.accelerate('idle')
     else:
         player.set_last_direction(player.last_direction)
