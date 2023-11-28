@@ -83,7 +83,6 @@ class Player:
     
     def idle(self):
         reversed = self.last_direction == 'left'
-        # print(f'idle: accelerate={self.accelerate_to["idle"]}')
         self.image = SpriteSheet(self.width, self.height, 'idle_1', reversed, self.actions_counter['idle'], 4)
         sprite = self.image.get_sprite()
         screen.blit(sprite, (self.x, self.y, self.width, self.height))
@@ -91,7 +90,6 @@ class Player:
 
     def idle_crouch(self):
         reversed = self.last_direction == 'left'
-        # print(f'idle: accelerate={self.accelerate_to["idle"]}')
         self.image = SpriteSheet(self.width, self.height, 'crouching_idle', False, self.actions_counter['down'], 4)
         sprite = self.image.get_sprite()
         screen.blit(sprite, (self.x, self.y, self.width, self.height))
@@ -105,14 +103,14 @@ class Player:
         pygame.display.flip()
     
     def jump(self, direction):
-        self.y -= 20
+        self.y -= 40
         if direction == 'left':
             self.x -= 10
         elif direction == 'right':
             self.x += 10
         self.falling = True
         reversed = self.last_direction == 'left'
-        self.image = SpriteSheet(self.width, self.height, 'jump_1', reversed, self.actions_counter['jump'], 4)
+        self.image = SpriteSheet(self.width, self.height, 'jump_1', reversed, self.actions_counter['jump'], 6)
         sprite = self.image.get_sprite()
         screen.blit(sprite, (self.x, self.y, self.width, self.height))
         pygame.display.flip()
@@ -126,6 +124,7 @@ class Player:
     def check_if_landed(self):
         if self.check_collision_with_land():
             self.set_is_falling(False)
+            self.accelerate('jump', disable=True)
     
     def accelerate(self, action, disable=False):
         if action == 'idle':
@@ -164,7 +163,7 @@ class Player:
             if disable:
                 self.actions_counter['jump'] = 0
                 return 0
-            if self.actions_counter['jump'] == 3:
+            if self.actions_counter['jump'] == 6:
                 self.actions_counter['jump'] = 0
             else:
                 self.actions_counter['jump'] += 1
@@ -173,6 +172,13 @@ class Player:
                 self.actions_counter['idle'] = 0
          
     def move(self):
+        if self.falling:
+            if self.last_direction == 'left':
+                self.x -= 5
+                return 0
+            elif self.last_direction == 'right':
+                self.x += 5
+                return 0
         reversed = self.last_direction == 'left'
         self.image = SpriteSheet(self.width, self.height, 'walking_1', reversed, self.actions_counter[self.last_direction], 4)
         if self.last_direction == 'left':
@@ -219,6 +225,30 @@ def gameplay():
         if player.falling:
             player.y += 2
             player.accelerate('jump')
+            pygame.display.update()
+            player.y += 2
+            player.accelerate('jump')
+            pygame.display.update()
+            player.y += 2
+            player.accelerate('jump')
+            pygame.display.update()
+            player.y += 2
+            player.accelerate('jump')
+            pygame.display.update()
+            if keys[pygame.K_RIGHT]:
+                player.move()
+                player.set_last_direction('right')
+                pygame.display.update()
+                return 0
+            elif keys[pygame.K_LEFT]:
+                player.move()
+                player.set_last_direction('left')
+                player.accelerate('jump')
+                pygame.display.update()
+                return 0    
+            player.accelerate('jump')
+            pygame.display.update()
+            return 0
     if keys[pygame.K_RIGHT] and keys[pygame.K_DOWN]:
         if player.last_direction == 'right':
             player.accelerate('right')
