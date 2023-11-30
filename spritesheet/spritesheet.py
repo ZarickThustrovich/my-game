@@ -20,12 +20,17 @@ class SpriteSheet:
         sprite = self.pygame.Surface([self.width, self.height], self.pygame.SRCALPHA)
         y = 0
         if self.reversed:
-            reversed_by_divider = [i for i in range(0, self.divider)]
-            reversed_x = reversed_by_divider[self.accelerate - 1]
-            x = reversed_x * self.width
+            divider_list = [i for i in range(0, self.divider + 1)]
+            reversed_divider_list = divider_list[::-1]
+            print(reversed_divider_list)
+            reversed_divider_x = reversed_divider_list[self.accelerate - 1]
+            x = reversed_divider_x * self.width
             sprite.blit(self.pygame.transform.flip(self.sheet, True, False), (0, 0), (x, y, self.width, self.height))
         else:
-            x = self.accelerate * self.width
+            divider_list = [i for i in range(0, self.divider + 1)]
+            print(divider_list)
+            # x = self.accelerate * self.width
+            divider_x = divider_list[self.accelerate - 1]
+            x = divider_x * self.width
             sprite.blit(self.sheet, (0, 0), (x, y, self.width, self.height))
-        print('x,y=', x, y)
         return sprite
