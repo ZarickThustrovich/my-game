@@ -1,5 +1,8 @@
 from spritesheet import SpriteSheet
-from settings import RESOLUTION
+from settings import (
+    RESOLUTION, 
+    PLAYER_SPRITE_FRAMES,
+)
 
 
 class Player:
@@ -16,7 +19,15 @@ class Player:
         self.image = self.get_spritesheet('idle_2', 'idle')
      
     def get_spritesheet(self, state, actions_counter_key):
-        return SpriteSheet(self.width, self.height, state, self.last_direction == 'left', self.actions_counter[actions_counter_key], 4, self.pygame)
+        return SpriteSheet(
+            self.width, 
+            self.height, 
+            state, 
+            self.last_direction == 'left', 
+            self.actions_counter[actions_counter_key], 
+            PLAYER_SPRITE_FRAMES, 
+            self.pygame
+        )
     
     def set_last_direction(self, direction):
         self.last_direction = direction
@@ -39,18 +50,6 @@ class Player:
         self.image = self.get_spritesheet('idle_2', 'idle')
         sprite = self.image.get_sprite()
         self.reveal(sprite, (self.x, self.y, self.width, self.height))
-    
-    def jump(self, direction):
-        self.y -= 40
-        if direction == 'left':
-            self.x -= 10
-        elif direction == 'right':
-            self.x += 10
-        self.falling = True
-        self.image = self.get_spritesheet('jump_1', 'jump')
-        sprite = self.image.get_sprite()
-        self.screen.blit(sprite, (self.x, self.y, self.width, self.height))
-        self.pygame.display.flip()
     
     def set_is_falling(self, state):
         self.falling = state
@@ -108,25 +107,33 @@ class Player:
                 self.actions_counter['right'] = 0
                 self.actions_counter['idle'] = 0
 
+    def move_crouch(self, direction):
+        self.image = self.get_spritesheet('crouching_walk_1', direction)
+        self.last_direction = direction
+        self.x = self.new_x(2)
+        sprite = self.image.get_sprite()
+        self.reveal(sprite, (self.x, self.y, self.width, self.height))
+
     def move(self):
         if self.falling:
-            self.move_by_y(1)
+            self.x = self.new_y(1)
         self.image = self.get_spritesheet('walking_1', self.last_direction)
-        self.move_by_x(5)
+        self.x = self.new_x(5)
         sprite = self.image.get_sprite()
         self.reveal(sprite, (self.x, self.y, self.width, self.height))
     
-    def move_by_x(self, speed:int):
-        return self.x - speed if self.last_direction == 'left' else self.x + speed
-        
-    def move_by_y(self, speed:int):
-        return self.y - speed if self.last_direction == 'left' else self.y + speed
-        
-    def move_crouch(self, direction):
-        self.image = self.get_spritesheet('crouching_walk_1', direction)
-        if self.last_direction == 'left':
-            self.x -= 2
-        elif self.last_direction == 'right':
-            self.x += 2
+    def jump(self, direction):
+        self.last_direction = direction
+        self.y = self.new_y(40)
+        self.x = self.new_x(10)
+        self.falling = True
+        self.image = self.get_spritesheet('jump_1', 'jump')
         sprite = self.image.get_sprite()
         self.reveal(sprite, (self.x, self.y, self.width, self.height))
+        
+    def new_x(self, speed:int):
+        return self.x - speed if self.last_direction == 'left' else self.x + speed
+        
+    def new_y(self, speed:int):
+        return self.y + speed if self.falling else self.y - speed
+        
