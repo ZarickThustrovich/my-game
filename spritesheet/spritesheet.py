@@ -1,7 +1,10 @@
 import os
+from shortcuts import get_third_grand_parent_path_plus_name
 
 
-SPRITES_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'sprites')
+
+SPRITES_PATH = get_third_grand_parent_path_plus_name(__file__, 'sprites')
+
 
 
 class SpriteSheet:
