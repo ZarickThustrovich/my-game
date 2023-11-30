@@ -2,6 +2,13 @@ from spritesheet import SpriteSheet
 from settings import (
     RESOLUTION, 
     PLAYER_SPRITE_FRAMES,
+    PLAYER_JUMP_HEIGHT,
+    PLAYER_AIR_ACCELERATION,
+    PLAYER_CROUCHING_SPEED,
+    PLAYER_MOVING_SPEED,
+    PLAYER_FALLING_SPEED,
+    PLAYER_SPRINTING_SPEED,
+    SURFACE_BOTTOM_BORDER,
 )
 
 
@@ -11,22 +18,23 @@ class Player:
         self.height = 64
         self.width = 100
         self.x = (RESOLUTION[0] - self.width) // 2
-        self.y = (RESOLUTION[1] - self.height) - 20
+        self.y = (SURFACE_BOTTOM_BORDER - self.height) - 20
         self.last_direction = 'idle'
         self.falling = False
         self.pygame = pygame
         self.animation_counter = 0
         self.state = 'idle'
+        self.attacking = False
         self.image = self.get_spritesheet('idle_2')
      
-    def get_spritesheet(self, state):
+    def get_spritesheet(self, state, player_sprite_frames=PLAYER_SPRITE_FRAMES):
         return SpriteSheet(
             self.width, 
             self.height, 
             state, 
             self.last_direction == 'left', 
             self.animation_counter, 
-            PLAYER_SPRITE_FRAMES, 
+            player_sprite_frames, 
             self.pygame
         )
     
@@ -51,7 +59,7 @@ class Player:
             self.stop_animation()
             self.state = 'crouching_idle'
         self.accelerate_animation()
-        self.image = self.get_spritesheet('crouching_idle')
+        self.image = self.get_spritesheet('crouching_idle_test')
         sprite = self.image.get_sprite()
         self.reveal(sprite, (self.x, self.y, self.width, self.height))
 
@@ -74,54 +82,65 @@ class Player:
         self.accelerate_animation()
         self.image = self.get_spritesheet('crouching_walk_1')
         self.last_direction = direction
-        self.x = self.new_x(2)
+        self.x = self.new_x(PLAYER_CROUCHING_SPEED)
         sprite = self.image.get_sprite()
         self.reveal(sprite, (self.x, self.y, self.width, self.height))
 
-    def move(self, direction):
+    def move(self, direction, sprint=False):
+        self.set_last_direction(direction)
         if self.state != 'move':
-            self.set_last_direction(direction)
             self.state = 'move'
         self.accelerate_animation()
         if self.falling:
             self.x = self.new_y(1)
-        self.image = self.get_spritesheet('walking_1')
-        self.x = self.new_x(5)
+        if not sprint:
+            self.x = self.new_x(PLAYER_MOVING_SPEED)
+            self.image = self.get_spritesheet('walking_1')
+        else:
+            self.x = self.new_x(PLAYER_SPRINTING_SPEED)
+            self.image = self.get_spritesheet('walking_2')
         sprite = self.image.get_sprite()
         self.reveal(sprite, (self.x, self.y, self.width, self.height))
     
     def fall(self, direction=None):
+        self.set_is_falling(True)
         if self.state != 'fall':
             self.set_last_direction(direction if direction else self.last_direction)
             self.state = 'fall'
-        sprite = self.image.get_sprite()
-        self.reveal(sprite, (self.x, self.y, self.width, self.height))
         if self.is_landed():
-            self.falling = False
-        if not self.falling:
+            self.set_is_falling(False)
             self.image = self.get_spritesheet('idle_1')
             sprite = self.image.get_sprite()
             self.reveal(sprite, (self.x, self.y, self.width, self.height))
         else:
             if not direction:
-                self.y = self.new_y(40)
+                self.y = self.new_y(PLAYER_FALLING_SPEED)
             else:
-                self.y = self.new_y(10)
+                self.set_last_direction(direction)
+                self.y = self.new_y(PLAYER_FALLING_SPEED)
                 self.x = self.new_x(10, direction)
             self.image = self.get_spritesheet('jump_1')
             sprite = self.image.get_sprite()
             self.reveal(sprite, (self.x, self.y, self.width, self.height))
-            
+    
+    def attack(self):
+        self.attacking = True
+        if self.animation_counter == 4:
+            self.attacking = False
+        if self.state != 'attack':
+            self.stop_animation()
+            self.state = 'attack'
+        self.accelerate_animation()
+        self.image = self.get_spritesheet('Attack_KG_4')
+        sprite = self.image.get_sprite()
+        self.reveal(sprite, (self.x, self.y, self.width, self.height)) 
     
     def jump(self, jump_direction=None):
-        if self.is_landed():
-            self.falling = False
-            self.y = self.new_y(40)
-            self.x = self.new_x(10, jump_direction)
-        else:
-            self.falling = True
+        self.y = self.new_y(PLAYER_JUMP_HEIGHT)
+        self.x = self.new_x(PLAYER_AIR_ACCELERATION, jump_direction)
         self.image = self.get_spritesheet('jump_1')
         sprite = self.image.get_sprite()
+        self.falling = True
         self.reveal(sprite, (self.x, self.y, self.width, self.height))
         
     def new_x(self, speed:int, custom_direction=False):
@@ -135,12 +154,11 @@ class Player:
         self.falling = state
     
     def check_collision_with_land(self):
-        return self.y == RESOLUTION[1] - self.height - 20
+        return self.y == SURFACE_BOTTOM_BORDER - self.height - 20
         
     def is_landed(self):
-        if self.check_collision_with_land():
-            self.set_is_falling(False)
-    
+        return self.check_collision_with_land()
+
     def accelerate_animation(self):
         if self.animation_counter > 3:
             self.animation_counter = 0

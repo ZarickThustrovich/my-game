@@ -4,7 +4,18 @@ from pygame.locals import *
 from random import randint
 import os.path
 from player import Player
-from settings import RESOLUTION
+from in_game_menu import InGameMenu
+from settings import (
+    RESOLUTION,
+    FRAMERATE,
+    PLAYER_SPRITE_FRAMES,
+    PLAYER_AIR_ACCELERATION,
+    PLAYER_MOVING_SPEED,
+    PLAYER_CROUCHING_SPEED,
+    PLAYER_JUMP_HEIGHT,
+    PLAYER_FALLING_SPEED,
+    PLAYER_SPRINTING_SPEED,
+)
 
 
 
@@ -16,6 +27,7 @@ running = True
 is_menu = True
 clock = pygame.time.Clock()
 player = Player(screen, pygame)
+# in_game_menu = InGameMenu(pygame, screen)
 
 
 def call_menu():
@@ -32,9 +44,21 @@ def menu():
     
 def gameplay():
     print(player.x, ' ', player.y)
-    # print(player.actions_counter)
     screen.fill((255, 255, 255))
+    # in_game_menu.reveal()
     keys = pygame.key.get_pressed()
+    mouse_clicks = pygame.mouse.get_pressed()
+    sprint = False
+    if player.attacking:
+        player.attack()
+        pygame.display.update()
+        return 0
+    if mouse_clicks[0]:
+        player.attack()
+        pygame.display.update()
+        return 0
+    if keys[pygame.K_LSHIFT]:
+        sprint = True
     if player.falling:
         if keys[pygame.K_RIGHT]:
             player.fall('right')
@@ -62,20 +86,19 @@ def gameplay():
         player.idle_crouch()
         return 0
     elif keys[pygame.K_RIGHT]:
-        player.move('right')
+        player.move('right', sprint)
         return 0
     elif keys[pygame.K_LEFT]:
-        player.move('left')
+        player.move('left', sprint)
         return 0
     elif keys[pygame.K_UP or pygame.K_SPACE]:
-        if not player.falling:
-            player.jump(None)
-            return 0
+        player.jump(None)
+        return 0
     player.idle()
     pygame.display.update()
 
 while running:
-    clock.tick(60)
+    clock.tick(FRAMERATE)
     for event in pygame.event.get():
         if event.type == QUIT:
             running = False

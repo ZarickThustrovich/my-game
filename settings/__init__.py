@@ -1,5 +1,17 @@
-from .settings import (
+from .app import (
     RESOLUTION, 
     SPRITES_PATH,
+    FRAMERATE,
+)
+from .player import (
+    PLAYER_MOVING_SPEED,
+    PLAYER_CROUCHING_SPEED,
     PLAYER_SPRITE_FRAMES,
+    PLAYER_JUMP_HEIGHT,
+    PLAYER_AIR_ACCELERATION,
+    PLAYER_FALLING_SPEED,
+    PLAYER_SPRINTING_SPEED,
+)
+from .environment import (
+    SURFACE_BOTTOM_BORDER,
 )
