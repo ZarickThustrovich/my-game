@@ -1,40 +1,40 @@
 from spritesheet import SpriteSheet
+from settings import RESOLUTION
 
 
 class Player:
     def __init__(self, screen, pygame):
-        global res
         self.screen = screen
         self.height = 64
         self.width = 100
-        self.x = (res[0] - self.width) // 2
-        self.y = res[1] - self.height - 20
+        self.x = (RESOLUTION[0] - self.width) // 2
+        self.y = (RESOLUTION[1] - self.height) - 20
         self.last_direction = 'idle'
         self.actions_counter = {'right': 0, 'left': 0, 'down': 0, 'idle': 0, 'jump': 0}
         self.falling = False
         self.pygame = pygame
-        self.image = SpriteSheet(self.width, self.height, 'idle_2', False, self.actions_counter['idle'], 4, self.pygame)
+        self.image = self.get_spritesheet('idle_2', 'idle')
+     
+    def get_spritesheet(self, state, actions_counter_key):
+        return SpriteSheet(self.width, self.height, state, self.last_direction == 'left', self.actions_counter[actions_counter_key], 4, self.pygame)
     
     def set_last_direction(self, direction):
         self.last_direction = direction
     
     def idle(self):
-        reversed = self.last_direction == 'left'
-        self.image = SpriteSheet(self.width, self.height, 'idle_1', reversed, self.actions_counter['idle'], 4, self.pygame)
+        self.image = self.get_spritesheet('idle_1', 'idle')
         sprite = self.image.get_sprite()
         self.screen.blit(sprite, (self.x, self.y, self.width, self.height))
         self.pygame.display.flip()
 
     def idle_crouch(self):
-        reversed = self.last_direction == 'left'
-        self.image = SpriteSheet(self.width, self.height, 'crouching_idle', False, self.actions_counter['down'], 4, self.pygame)
+        self.image = self.get_spritesheet('crouching_idle', 'down')
         sprite = self.image.get_sprite()
         self.screen.blit(sprite, (self.x, self.y, self.width, self.height))
         self.pygame.display.flip()
 
     def idle_with_weapon(self):
-        reversed = self.last_direction == 'left'
-        self.image = SpriteSheet(self.width, self.height, 'idle_2', False, self.actions_counter['idle'], 4, self.pygame)
+        self.image = self.get_spritesheet('idle_2', 'idle')
         sprite = self.image.get_sprite()
         self.screen.blit(sprite, (self.x, self.y, self.width, self.height))
         self.pygame.display.flip()
@@ -46,8 +46,7 @@ class Player:
         elif direction == 'right':
             self.x += 10
         self.falling = True
-        reversed = self.last_direction == 'left'
-        self.image = SpriteSheet(self.width, self.height, 'jump_1', reversed, self.actions_counter['jump'], 6)
+        self.image = self.get_spritesheet('jump_1', 'jump')
         sprite = self.image.get_sprite()
         self.screen.blit(sprite, (self.x, self.y, self.width, self.height))
         self.pygame.display.flip()
@@ -56,7 +55,7 @@ class Player:
         self.falling = state
     
     def check_collision_with_land(self):
-        return self.y == res[1] - self.height - 20
+        return self.y == RESOLUTION[1] - self.height - 20
         
     def check_if_landed(self):
         if self.check_collision_with_land():
@@ -116,8 +115,7 @@ class Player:
             elif self.last_direction == 'right':
                 self.x += 5
                 return 0
-        reversed = self.last_direction == 'left'
-        self.image = SpriteSheet(self.width, self.height, 'walking_1', reversed, self.actions_counter[self.last_direction], 4)
+        self.image = self.get_spritesheet('walking_1', self.last_direction)
         if self.last_direction == 'left':
             self.x -= 5
         elif self.last_direction == 'right':
@@ -127,8 +125,7 @@ class Player:
         self.pygame.display.flip()
     
     def move_crouch(self, direction):
-        reversed = direction == 'left'
-        self.image = SpriteSheet(self.width, self.height, 'crouching_walk_1', reversed, self.actions_counter[self.last_direction], 4)
+        self.image = self.get_spritesheet('crouching_walk_1', direction)
         if self.last_direction == 'left':
             self.x -= 2
         elif self.last_direction == 'right':

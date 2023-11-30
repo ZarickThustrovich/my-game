@@ -1,10 +1,5 @@
-import os
-from shortcuts import get_third_grand_parent_path_plus_name
-
-
-
-SPRITES_PATH = get_third_grand_parent_path_plus_name(__file__, 'sprites')
-
+from shortcuts import get_path_plus_name
+from settings import SPRITES_PATH
 
 
 class SpriteSheet:
@@ -12,11 +7,14 @@ class SpriteSheet:
         self.width = width
         self.height = height
         self.state = state
-        self.sheet = pygame.image.load(os.path.join(SPRITES_PATH, f"{state}.png")).convert_alpha()
+        self.pygame = pygame
+        self.sheet = self.load_image_and_convert(f'{state}.png')
         self.reversed = reversed
         self.accelerate = accelerate
         self.divider = divider
-        self.pygame = pygame
+    
+    def load_image_and_convert(self, filename):
+        return self.pygame.image.load(get_path_plus_name(SPRITES_PATH, filename)).convert_alpha()
     
     def get_sprite(self):
         sprite = self.pygame.Surface([self.width, self.height], self.pygame.SRCALPHA)
