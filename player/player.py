@@ -21,23 +21,24 @@ class Player:
     def set_last_direction(self, direction):
         self.last_direction = direction
     
+    def reveal(self, sprite, coords_and_sizes):
+        self.screen.blit(sprite, coords_and_sizes)
+        self.pygame.display.flip()
+        
     def idle(self):
         self.image = self.get_spritesheet('idle_1', 'idle')
         sprite = self.image.get_sprite()
-        self.screen.blit(sprite, (self.x, self.y, self.width, self.height))
-        self.pygame.display.flip()
+        self.reveal(sprite, (self.x, self.y, self.width, self.height))
 
     def idle_crouch(self):
         self.image = self.get_spritesheet('crouching_idle', 'down')
         sprite = self.image.get_sprite()
-        self.screen.blit(sprite, (self.x, self.y, self.width, self.height))
-        self.pygame.display.flip()
+        self.reveal(sprite, (self.x, self.y, self.width, self.height))
 
     def idle_with_weapon(self):
         self.image = self.get_spritesheet('idle_2', 'idle')
         sprite = self.image.get_sprite()
-        self.screen.blit(sprite, (self.x, self.y, self.width, self.height))
-        self.pygame.display.flip()
+        self.reveal(sprite, (self.x, self.y, self.width, self.height))
     
     def jump(self, direction):
         self.y -= 40
@@ -106,24 +107,21 @@ class Player:
                 self.actions_counter['left'] = 0
                 self.actions_counter['right'] = 0
                 self.actions_counter['idle'] = 0
-         
+
     def move(self):
         if self.falling:
-            if self.last_direction == 'left':
-                self.x -= 5
-                return 0
-            elif self.last_direction == 'right':
-                self.x += 5
-                return 0
+            self.move_by_y(1)
         self.image = self.get_spritesheet('walking_1', self.last_direction)
-        if self.last_direction == 'left':
-            self.x -= 5
-        elif self.last_direction == 'right':
-            self.x += 5
+        self.move_by_x(5)
         sprite = self.image.get_sprite()
-        self.screen.blit(sprite, (self.x, self.y, self.width, self.height))
-        self.pygame.display.flip()
+        self.reveal(sprite, (self.x, self.y, self.width, self.height))
     
+    def move_by_x(self, speed:int):
+        return self.x - speed if self.last_direction == 'left' else self.x + speed
+        
+    def move_by_y(self, speed:int):
+        return self.y - speed if self.last_direction == 'left' else self.y + speed
+        
     def move_crouch(self, direction):
         self.image = self.get_spritesheet('crouching_walk_1', direction)
         if self.last_direction == 'left':
@@ -131,5 +129,4 @@ class Player:
         elif self.last_direction == 'right':
             self.x += 2
         sprite = self.image.get_sprite()
-        self.screen.blit(sprite, (self.x, self.y, self.width, self.height))
-        self.pygame.display.flip()
+        self.reveal(sprite, (self.x, self.y, self.width, self.height))
