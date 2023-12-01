@@ -4,6 +4,7 @@ from pygame.locals import *
 from random import randint
 import os.path
 from player import Player
+from enemies import Enemy
 from in_game_menu import InGameMenu
 from settings import (
     RESOLUTION,
@@ -36,7 +37,7 @@ def start_game():
 
 clock = pygame.time.Clock()
 player = Player(screen, pygame, call_menu)
-
+enemy = Enemy(screen, pygame, 'knight', 0, 0)
 
 
 def menu():
@@ -44,12 +45,14 @@ def menu():
     pygame.display.update()
     
 def gameplay():
+    print(enemy.x, ' ', enemy.y)
     global player
     if player.reset:
         player = Player(screen, pygame, call_menu)
     in_game_menu = InGameMenu(pygame, screen, player.health)
     screen.fill((255, 255, 255))
-    print(player.x, ' ', player.y)
+    enemy.move('left')
+    # print(player.x, ' ', player.y)
     keys = pygame.key.get_pressed()
     mouse_clicks = pygame.mouse.get_pressed()
     sprint = False

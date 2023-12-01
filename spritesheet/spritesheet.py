@@ -22,13 +22,13 @@ class SpriteSheet:
         if self.reversed:
             divider_list = [i for i in range(0, self.divider + 1)]
             reversed_divider_list = divider_list[::-1]
-            print(reversed_divider_list)
+            # print(reversed_divider_list)
             reversed_divider_x = reversed_divider_list[self.accelerate - 1]
             x = reversed_divider_x * self.width
             sprite.blit(self.pygame.transform.flip(self.sheet, True, False), (0, 0), (x, y, self.width, self.height))
         else:
             divider_list = [i for i in range(0, self.divider + 1)]
-            print(divider_list)
+            # print(divider_list)
             # x = self.accelerate * self.width
             divider_x = divider_list[self.accelerate - 1]
             x = divider_x * self.width

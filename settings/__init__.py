@@ -17,3 +17,9 @@ from .player import (
 from .environment import (
     SURFACE_BOTTOM_BORDER,
 )
+from .enemy import (
+    ENEMY_MOVING_SPEED,
+    ENEMY_HEALTH,
+    ENEMY_SPRITES_FOLDER,
+    ENEMY_SPRITE_FRAMES,
+)
