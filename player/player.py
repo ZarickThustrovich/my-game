@@ -9,6 +9,7 @@ from settings import (
     PLAYER_FALLING_SPEED,
     PLAYER_SPRINTING_SPEED,
     SURFACE_BOTTOM_BORDER,
+    PLAYER_HEALTH,
 )
 
 
@@ -25,6 +26,8 @@ class Player:
         self.animation_counter = 0
         self.state = 'idle'
         self.attacking = False
+        self.stunned = False
+        self.health = PLAYER_HEALTH
         self.image = self.get_spritesheet('idle_2')
      
     def get_spritesheet(self, state, player_sprite_frames=PLAYER_SPRITE_FRAMES):
@@ -37,6 +40,16 @@ class Player:
             player_sprite_frames, 
             self.pygame
         )
+    
+    def damage(self, hp):
+        self.health -= hp
+        if self.state != 'damaged':
+            self.stop_animation()
+            self.state = 'damaged'
+        self.accelerate_animation()
+        self.image = self.get_spritesheet('Hurt_KG_1')
+        sprite = self.image.get_sprite()
+        self.reveal(sprite, (self.x, self.y, self.width, self.height))
     
     def set_last_direction(self, direction):
         self.last_direction = direction

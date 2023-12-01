@@ -11,6 +11,7 @@ from .player import (
     PLAYER_AIR_ACCELERATION,
     PLAYER_FALLING_SPEED,
     PLAYER_SPRINTING_SPEED,
+    PLAYER_HEALTH,
 )
 from .environment import (
     SURFACE_BOTTOM_BORDER,

@@ -27,8 +27,6 @@ running = True
 is_menu = True
 clock = pygame.time.Clock()
 player = Player(screen, pygame)
-# in_game_menu = InGameMenu(pygame, screen)
-
 
 def call_menu():
     global is_menu
@@ -43,12 +41,24 @@ def menu():
     pygame.display.update()
     
 def gameplay():
-    print(player.x, ' ', player.y)
+    in_game_menu = InGameMenu(pygame, screen, player.health)
     screen.fill((255, 255, 255))
-    # in_game_menu.reveal()
+    print(player.x, ' ', player.y)
     keys = pygame.key.get_pressed()
     mouse_clicks = pygame.mouse.get_pressed()
     sprint = False
+    in_game_menu.reveal()
+    if player.stunned:
+        player.damage(5)
+        if player.health <= 0:
+            return call_menu()
+            
+        pygame.display.update()
+        return 0
+    if keys[pygame.K_LCTRL]:
+        player.damage(10)
+        pygame.display.update()
+        return 0
     if player.attacking:
         player.attack()
         pygame.display.update()
@@ -98,7 +108,6 @@ def gameplay():
     pygame.display.update()
 
 while running:
-    clock.tick(FRAMERATE)
     for event in pygame.event.get():
         if event.type == QUIT:
             running = False
@@ -112,8 +121,8 @@ while running:
         menu()
     else:
         gameplay()
-    pygame.time.delay(10) 
-    clock.tick(16)
+    pygame.time.delay(10)
+    clock.tick(FRAMERATE)
 
 pygame.quit()
 sys.exit()
