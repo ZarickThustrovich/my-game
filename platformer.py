@@ -5,6 +5,7 @@ from random import randint
 import os.path
 from player import Player
 from enemies import Enemy
+from menu import Menu
 from in_game_menu import InGameMenu
 from settings import (
     RESOLUTION,
@@ -38,11 +39,7 @@ def start_game():
 clock = pygame.time.Clock()
 player = Player(screen, pygame, call_menu)
 enemy = Enemy(screen, pygame, 'knight', 0, 0)
-
-
-def menu():
-    screen.fill((255, 255, 255)) 
-    pygame.display.update()
+menu = Menu(pygame, screen)
     
 def gameplay():
     print(enemy.x, ' ', enemy.y)
@@ -124,7 +121,8 @@ while running:
                 else:
                     call_menu()
     if is_menu:
-        menu()
+        menu.reveal()
+        menu.reveal_buttons()
     else:
         gameplay()
     pygame.time.delay(10)

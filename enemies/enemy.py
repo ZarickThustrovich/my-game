@@ -30,7 +30,7 @@ class Enemy:
         self.accelerate_animation()
         if self.falling:
             self.x = self.new_y(1)
-        # self.x = self.new_x(ENEMY_MOVING_SPEED)
+        self.x = self.new_x(ENEMY_MOVING_SPEED)
         self.image = self.get_spritesheet('demon_walk')
         sprite = self.image.get_sprite()
         self.reveal(sprite, (self.x, self.y, self.width, self.height))

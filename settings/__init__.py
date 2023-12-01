@@ -23,3 +23,6 @@ from .enemy import (
     ENEMY_SPRITES_FOLDER,
     ENEMY_SPRITE_FRAMES,
 )
+from .menu import (
+    BUTTONS,
+)
