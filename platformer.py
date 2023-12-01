@@ -25,8 +25,6 @@ pygame.init()
 screen = pygame.display.set_mode(RESOLUTION)
 running = True
 is_menu = True
-clock = pygame.time.Clock()
-player = Player(screen, pygame)
 
 def call_menu():
     global is_menu
@@ -36,11 +34,19 @@ def start_game():
     global is_menu
     is_menu = False
 
+clock = pygame.time.Clock()
+player = Player(screen, pygame, call_menu)
+
+
+
 def menu():
     screen.fill((255, 255, 255)) 
     pygame.display.update()
     
 def gameplay():
+    global player
+    if player.reset:
+        player = Player(screen, pygame, call_menu)
     in_game_menu = InGameMenu(pygame, screen, player.health)
     screen.fill((255, 255, 255))
     print(player.x, ' ', player.y)
@@ -50,9 +56,6 @@ def gameplay():
     in_game_menu.reveal()
     if player.stunned:
         player.damage(5)
-        if player.health <= 0:
-            return call_menu()
-            
         pygame.display.update()
         return 0
     if keys[pygame.K_LCTRL]:

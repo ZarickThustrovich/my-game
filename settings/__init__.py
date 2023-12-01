@@ -12,6 +12,7 @@ from .player import (
     PLAYER_FALLING_SPEED,
     PLAYER_SPRINTING_SPEED,
     PLAYER_HEALTH,
+    PLAYER_SPRITES_FOLDER,
 )
 from .environment import (
     SURFACE_BOTTOM_BORDER,

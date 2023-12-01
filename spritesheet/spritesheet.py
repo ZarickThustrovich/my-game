@@ -8,13 +8,13 @@ class SpriteSheet:
         self.height = height
         self.state = state
         self.pygame = pygame
-        self.sheet = self.load_image_and_convert(f'{state}.png')
+        self.sheet = self.load_image_and_convert(state)
         self.reversed = reversed
         self.accelerate = accelerate
         self.divider = divider
     
     def load_image_and_convert(self, filename):
-        return self.pygame.image.load(get_path_plus_name(SPRITES_PATH, filename)).convert_alpha()
+        return self.pygame.image.load(filename).convert_alpha()
     
     def get_sprite(self):
         sprite = self.pygame.Surface([self.width, self.height], self.pygame.SRCALPHA)

@@ -1,3 +1,6 @@
+from shortcuts import get_parent_folder_path_with_name
+
+
 PLAYER_MOVING_SPEED = 10
 PLAYER_HEALTH = 300
 PLAYER_CROUCHING_SPEED = 5
@@ -6,3 +9,4 @@ PLAYER_JUMP_HEIGHT = 60
 PLAYER_AIR_ACCELERATION = 10
 PLAYER_FALLING_SPEED = 15
 PLAYER_SPRINTING_SPEED = 15
+PLAYER_SPRITES_FOLDER = get_parent_folder_path_with_name('player')

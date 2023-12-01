@@ -1,4 +1,5 @@
 from spritesheet import SpriteSheet
+import os
 from settings import (
     RESOLUTION, 
     PLAYER_SPRITE_FRAMES,
@@ -10,18 +11,22 @@ from settings import (
     PLAYER_SPRINTING_SPEED,
     SURFACE_BOTTOM_BORDER,
     PLAYER_HEALTH,
+    PLAYER_SPRITES_FOLDER,
 )
 
 
 class Player:
-    def __init__(self, screen, pygame):
+    def __init__(self, screen, pygame, call_menu):
         self.screen = screen
         self.height = 64
         self.width = 100
+        self.reset = False
+        self.call_menu = call_menu
         self.x = (RESOLUTION[0] - self.width) // 2
         self.y = (SURFACE_BOTTOM_BORDER - self.height) - 20
         self.last_direction = 'idle'
         self.falling = False
+        self.sprites_folder = PLAYER_SPRITES_FOLDER
         self.pygame = pygame
         self.animation_counter = 0
         self.state = 'idle'
@@ -34,7 +39,7 @@ class Player:
         return SpriteSheet(
             self.width, 
             self.height, 
-            state, 
+            os.path.join(PLAYER_SPRITES_FOLDER, state + '.png'), 
             self.last_direction == 'left', 
             self.animation_counter, 
             player_sprite_frames, 
@@ -43,6 +48,8 @@ class Player:
     
     def damage(self, hp):
         self.health -= hp
+        if self.health <= 0:
+            self.die()
         if self.state != 'damaged':
             self.stop_animation()
             self.state = 'damaged'
@@ -50,6 +57,10 @@ class Player:
         self.image = self.get_spritesheet('Hurt_KG_1')
         sprite = self.image.get_sprite()
         self.reveal(sprite, (self.x, self.y, self.width, self.height))
+    
+    def die(self):
+        self.reset = True
+        return self.call_menu()
     
     def set_last_direction(self, direction):
         self.last_direction = direction
