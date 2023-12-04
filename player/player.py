@@ -194,7 +194,7 @@ class Player:
         current_block_index = x_surface.index(current_player_block)
         # print('current_x_block=', x_surface[current_block_index])
         # print('current_y_block=', y_surface[current_block_index])
-        return self.y > y_surface[current_block_index] - self.height - 20 + 10
+        return self.y > y_surface[current_block_index] - self.height - 20
         # return self.y == SURFACE_BOTTOM_BORDER - self.height - 20
         
     def is_landed(self):
