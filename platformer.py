@@ -5,6 +5,7 @@ from random import randint
 import os.path
 from player import Player
 from enemies import Enemy
+from environment import Surface
 from menu import Menu
 from in_game_menu import InGameMenu
 from settings import (
@@ -37,15 +38,16 @@ def start_game():
     is_menu = False
 
 clock = pygame.time.Clock()
-player = Player(screen, pygame, call_menu)
+surface = Surface(pygame, screen, '')
+player = Player(screen, pygame, call_menu, surface)
 enemy = Enemy(screen, pygame, 'knight', 0, 0)
 menu = Menu(pygame, screen)
     
 def gameplay():
-    print(enemy.x, ' ', enemy.y)
+    # print(enemy.x, ' ', enemy.y)
     global player
     if player.reset:
-        player = Player(screen, pygame, call_menu)
+        player = Player(screen, pygame, call_menu, surface)
     in_game_menu = InGameMenu(pygame, screen, player.health)
     screen.fill((255, 255, 255))
     enemy.move('left')
@@ -53,7 +55,9 @@ def gameplay():
     keys = pygame.key.get_pressed()
     mouse_clicks = pygame.mouse.get_pressed()
     sprint = False
-    in_game_menu.reveal()
+    # in_game_menu.reveal()
+    surface.reveal()
+    
     if player.stunned:
         player.damage(5)
         pygame.display.update()

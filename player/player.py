@@ -16,14 +16,18 @@ from settings import (
 
 
 class Player:
-    def __init__(self, screen, pygame, call_menu):
+    def __init__(self, screen, pygame, call_menu, surface):
         self.screen = screen
         self.height = 64
         self.width = 100
         self.reset = False
         self.call_menu = call_menu
+        self.environment_surface = surface.get_surface()
         self.x = (RESOLUTION[0] - self.width) // 2
-        self.y = (SURFACE_BOTTOM_BORDER - self.height) - 20
+        print(self.environment_surface)
+        # print(self.x // 20 * 20)
+        self.y = self.environment_surface[1][self.environment_surface[0].index(self.x // 40 * 40)] - self.height - 20
+        # print(self.y)
         self.last_direction = 'idle'
         self.falling = False
         self.sprites_folder = PLAYER_SPRITES_FOLDER
@@ -34,7 +38,7 @@ class Player:
         self.stunned = False
         self.health = PLAYER_HEALTH
         self.image = self.get_spritesheet('idle_2')
-     
+    
     def get_spritesheet(self, state, player_sprite_frames=PLAYER_SPRITE_FRAMES):
         return SpriteSheet(
             self.width, 
@@ -108,6 +112,8 @@ class Player:
         self.last_direction = direction
         self.x = self.new_x(PLAYER_CROUCHING_SPEED)
         sprite = self.image.get_sprite()
+        if not self.check_collision_with_land():
+            self.falling = True
         self.reveal(sprite, (self.x, self.y, self.width, self.height))
 
     def move(self, direction, sprint=False):
@@ -124,6 +130,8 @@ class Player:
             self.x = self.new_x(PLAYER_SPRINTING_SPEED)
             self.image = self.get_spritesheet('walking_2')
         sprite = self.image.get_sprite()
+        if not self.check_collision_with_land():
+            self.falling = True
         self.reveal(sprite, (self.x, self.y, self.width, self.height))
     
     def fall(self, direction=None):
@@ -131,7 +139,7 @@ class Player:
         if self.state != 'fall':
             self.set_last_direction(direction if direction else self.last_direction)
             self.state = 'fall'
-        if self.is_landed():
+        if self.check_collision_with_land():
             self.set_is_falling(False)
             self.image = self.get_spritesheet('idle_1')
             sprite = self.image.get_sprite()
@@ -145,6 +153,8 @@ class Player:
                 self.x = self.new_x(10, direction)
             self.image = self.get_spritesheet('jump_1')
             sprite = self.image.get_sprite()
+            if not self.check_collision_with_land():
+                self.falling = True
             self.reveal(sprite, (self.x, self.y, self.width, self.height))
     
     def attack(self):
@@ -178,7 +188,14 @@ class Player:
         self.falling = state
     
     def check_collision_with_land(self):
-        return self.y == SURFACE_BOTTOM_BORDER - self.height - 20
+        x_surface = self.environment_surface[0]
+        y_surface = self.environment_surface[1]
+        current_player_block = (self.x + self.width // 2) // 40 * 40
+        current_block_index = x_surface.index(current_player_block)
+        # print('current_x_block=', x_surface[current_block_index])
+        # print('current_y_block=', y_surface[current_block_index])
+        return self.y > y_surface[current_block_index] - self.height - 20 + 10
+        # return self.y == SURFACE_BOTTOM_BORDER - self.height - 20
         
     def is_landed(self):
         return self.check_collision_with_land()
@@ -194,3 +211,4 @@ class Player:
     
     def set_state(self, state:str):
         self.state = state
+    
