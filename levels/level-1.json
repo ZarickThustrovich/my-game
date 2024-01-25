@@ -1,0 +1,113 @@
+{
+  "tiles": [
+    {
+      "y_position": 100,
+      "texture": "ground-top-with-grass"
+    },
+    {
+      "y_position": 200,
+      "texture": "ground-top-with-grass"
+    },
+    {
+      "y_position": 300,
+      "texture": "ground-top-with-grass"
+    },
+    {
+      "y_position": 100,
+      "texture": "ground-top-with-grass"
+    },
+    {
+      "y_position": 100,
+      "texture": "ground-top-with-grass"
+    },
+    {
+      "y_position": 100,
+      "texture": "ground-top-with-grass"
+    },
+    {
+      "y_position": 100,
+      "texture": "ground-top-with-grass"
+    },
+    {
+      "y_position": 100,
+      "texture": "ground-top-with-grass"
+    },
+    {
+      "y_position": 100,
+      "texture": "ground-top-with-grass"
+    },
+    {
+      "y_position": 100,
+      "texture": "ground-top-with-grass"
+    },
+    {
+      "y_position": 100,
+      "texture": "ground-top-with-grass"
+    },
+    {
+      "y_position": 100,
+      "texture": "ground-top-with-grass"
+    },
+    {
+      "y_position": 100,
+      "texture": "ground-top-with-grass"
+    },
+    {
+      "y_position": 100,
+      "texture": "ground-top-with-grass"
+    },
+    {
+      "y_position": 100,
+      "texture": "ground-top-with-grass"
+    },
+    {
+      "y_position": 100,
+      "texture": "ground-top-with-grass"
+    },
+    {
+      "y_position": 100,
+      "texture": "ground-top-with-grass"
+    },
+    {
+      "y_position": 100,
+      "texture": "ground-top-with-grass"
+    },
+    {
+      "y_position": 100,
+      "texture": "ground-top-with-grass"
+    },
+    {
+      "y_position": 100,
+      "texture": "ground-top-with-grass"
+    },
+    {
+      "y_position": 100,
+      "texture": "ground-top-with-grass"
+    },
+    {
+      "y_position": 100,
+      "texture": "ground-top-with-grass"
+    },
+    {
+      "y_position": 100,
+      "texture": "ground-top-with-grass"
+    },
+    {
+      "y_position": 100,
+      "texture": "ground-top-with-grass"
+    },
+    {
+      "y_position": 100,
+      "texture": "ground-top-with-grass"
+    },
+    {
+      "y_position": 100,
+      "texture": "ground-top-with-grass"
+    },
+    {
+      "y_position": 100,
+      "texture": "ground-top-with-grass"
+    }
+  ],
+  "background": "forest"
+}

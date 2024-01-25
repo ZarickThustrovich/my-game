@@ -1,8 +1,6 @@
 import pygame
 import sys
 from pygame.locals import *
-from random import randint
-import os.path
 from player import Player
 from enemies import Enemy
 from environment import Surface
@@ -20,12 +18,12 @@ from settings import (
     PLAYER_SPRINTING_SPEED,
 )
 
-
-
-
-
 pygame.init()
-screen = pygame.display.set_mode(RESOLUTION)
+screen_offset_x = max(0, 40 - RESOLUTION[0] // 2)
+screen = pygame.display.set_mode((RESOLUTION[0] + screen_offset_x, RESOLUTION[1]))
+# screen = pygame.Surface(RESOLUTION)
+# screen_base.blit(screen, (0, 0))
+# pygame.display.flip()
 running = True
 is_menu = True
 
@@ -38,9 +36,12 @@ def start_game():
     is_menu = False
 
 clock = pygame.time.Clock()
-surface = Surface(pygame, screen, '')
+surface = Surface(pygame, screen)
+surface.load_level('level-1')
+surface.reveal()
+
 player = Player(screen, pygame, call_menu, surface)
-enemy = Enemy(screen, pygame, 'knight', 0, 0)
+# enemy = Enemy(screen, pygame, 'knight', 0, 0)
 menu = Menu(pygame, screen)
     
 def gameplay():
@@ -48,9 +49,9 @@ def gameplay():
     global player
     if player.reset:
         player = Player(screen, pygame, call_menu, surface)
-    in_game_menu = InGameMenu(pygame, screen, player.health)
+    # in_game_menu = InGameMenu(pygame, screen, player.health)
     screen.fill((255, 255, 255))
-    enemy.move('left')
+    # enemy.move('left')
     # print(player.x, ' ', player.y)
     keys = pygame.key.get_pressed()
     mouse_clicks = pygame.mouse.get_pressed()

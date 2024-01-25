@@ -1,7 +1,7 @@
 from spritesheet import SpriteSheet
 import os
 from settings import (
-    RESOLUTION, 
+    RESOLUTION,
     PLAYER_SPRITE_FRAMES,
     PLAYER_JUMP_HEIGHT,
     PLAYER_AIR_ACCELERATION,
@@ -12,6 +12,7 @@ from settings import (
     SURFACE_BOTTOM_BORDER,
     PLAYER_HEALTH,
     PLAYER_SPRITES_FOLDER,
+    TILE_DEFAULT_SIZE,
 )
 
 
@@ -22,12 +23,11 @@ class Player:
         self.width = 100
         self.reset = False
         self.call_menu = call_menu
-        self.environment_surface = surface.get_surface()
-        self.x = (RESOLUTION[0] - self.width) // 2
-        print(self.environment_surface)
-        # print(self.x // 20 * 20)
-        self.y = self.environment_surface[1][self.environment_surface[0].index(self.x // 40 * 40)] - self.height - 20
-        # print(self.y)
+        self.level_surface_data = surface.get_surface()
+        # self.x = self.width
+        # self.y = self.level_surface_data['tiles'][0]['y_position']
+        self.x = 0 + self.height
+        self.y = 0 + self.width
         self.last_direction = 'idle'
         self.falling = False
         self.sprites_folder = PLAYER_SPRITES_FOLDER
@@ -38,16 +38,16 @@ class Player:
         self.stunned = False
         self.health = PLAYER_HEALTH
         self.image = self.get_spritesheet('idle_2')
-    
+
     def get_spritesheet(self, state, player_sprite_frames=PLAYER_SPRITE_FRAMES):
         return SpriteSheet(
-            self.width, 
-            self.height, 
-            os.path.join(PLAYER_SPRITES_FOLDER, state + '.png'), 
-            self.last_direction == 'left', 
-            self.animation_counter, 
-            player_sprite_frames, 
-            self.pygame
+            self.width,
+            self.height,
+            os.path.join(PLAYER_SPRITES_FOLDER, state + '.png'),
+            self.last_direction == 'left',
+            self.animation_counter,
+            player_sprite_frames,
+            self.pygame,
         )
     
     def damage(self, hp):
@@ -90,6 +90,12 @@ class Player:
         self.image = self.get_spritesheet('crouching_idle_test')
         sprite = self.image.get_sprite()
         self.reveal(sprite, (self.x, self.y, self.width, self.height))
+
+    def get_x_with_model_offset(self):
+        return round((self.x + self.width // 2)) - self.width // 25
+
+    def get_y_with_model_offset(self):
+        return self.y + self.height
 
     def idle_with_weapon(self):
         if self.state != 'idle_with_weapon':
@@ -171,16 +177,30 @@ class Player:
     
     def jump(self, jump_direction=None):
         self.y = self.new_y(PLAYER_JUMP_HEIGHT)
-        self.x = self.new_x(PLAYER_AIR_ACCELERATION, jump_direction)
+        if jump_direction:
+            self.x = self.new_x(PLAYER_AIR_ACCELERATION, jump_direction)
         self.image = self.get_spritesheet('jump_1')
         sprite = self.image.get_sprite()
         self.falling = True
         self.reveal(sprite, (self.x, self.y, self.width, self.height))
         
     def new_x(self, speed:int, custom_direction=False):
+        x_with_offset = self.get_x_with_model_offset()
         direction = custom_direction if custom_direction else self.last_direction
-        return self.x - speed if direction == 'left' else self.x + speed
-            
+        if not self.check_collision_with_land():
+            self.falling = True
+        if direction == 'left':
+            if self.check_collision_with_wall('left'):
+                if (x_with_offset < speed):
+                    return self.x
+                return self.x - speed
+        elif direction == 'right':
+            if self.check_collision_with_wall('right'):
+                if x_with_offset > RESOLUTION[0] - speed:
+                    return self.x
+                return self.x + speed
+        return self.x
+        
     def new_y(self, speed:int):
         return self.y + speed if self.falling else self.y - speed
         
@@ -188,15 +208,65 @@ class Player:
         self.falling = state
     
     def check_collision_with_land(self):
-        x_surface = self.environment_surface[0]
-        y_surface = self.environment_surface[1]
-        current_player_block = (self.x + self.width // 2) // 40 * 40
-        current_block_index = x_surface.index(current_player_block)
-        # print('current_x_block=', x_surface[current_block_index])
-        # print('current_y_block=', y_surface[current_block_index])
-        return self.y > y_surface[current_block_index] - self.height - 20
-        # return self.y == SURFACE_BOTTOM_BORDER - self.height - 20
-        
+        x_with_offset = self.get_x_with_model_offset()
+        screen_sizes = (self.screen.get_width(), self.screen.get_height())
+        player_x_tile_index = round((x_with_offset) * len(self.level_surface_data['tiles']) // screen_sizes[0])
+        # print(self.y + self.height, ' ', player_x_tile_index, ' ', self.level_surface_data['tiles'][player_x_tile_index]['y_position'])
+        return (self.y + self.height) == self.level_surface_data['tiles'][player_x_tile_index]['y_position']
+    
+    def check_collision_with_wall(self, direction):
+        x_with_offset = self.get_x_with_model_offset()
+        y_with_offset = self.get_y_with_model_offset()
+        screen_sizes = (self.screen.get_width(), self.screen.get_height())
+        player_x_tile_index = round((x_with_offset) * len(self.level_surface_data['tiles']) // screen_sizes[0])
+        print(player_x_tile_index)
+        if direction == 'right':
+            print(
+                'PLAYER_HEIGHT ',
+                self.y + self.height,
+                'NEXT_SURFACE_HEIGHT ',
+                self.level_surface_data['tiles'][player_x_tile_index + 1]['y_position'],
+                'NEXT_TILE_X ',
+                (player_x_tile_index + 1) * TILE_DEFAULT_SIZE[0],
+                'PLAYER_X ',
+                x_with_offset,
+                # 'COMPARE HEIGHTS OF PLAYER WITH HEIGHT OF SURFACE',
+                # self.y + self.height <= self.level_surface_data['tiles'][player_x_tile_index + 1]['y_position'],
+                # 'COMPARE PLAYER IS NOT IN EDGE',
+                # x_with_offset < (((player_x_tile_index + 1) * TILE_DEFAULT_SIZE[0]) + PLAYER_SPRINTING_SPEED),
+                'CURRENT_TILE_INDEX ', player_x_tile_index,
+                'NEXT_TILE_INDEX ', player_x_tile_index + 1,
+                'VERGE_OF_BLOCK', (((player_x_tile_index + 1) * TILE_DEFAULT_SIZE[0]) - PLAYER_SPRINTING_SPEED),
+            )
+            if x_with_offset < (((player_x_tile_index + 1) * TILE_DEFAULT_SIZE[0]) - PLAYER_SPRINTING_SPEED):
+                return True
+            else:
+                if y_with_offset <= self.level_surface_data['tiles'][player_x_tile_index + 1]['y_position']:
+                    return True
+        elif direction == 'left':
+            print(
+                'PLAYER_HEIGHT ',
+                y_with_offset,
+                'NEXT_SURFACE_HEIGHT ',
+                self.level_surface_data['tiles'][player_x_tile_index - 1]['y_position'],
+                'NEXT_TILE_X ',
+                (player_x_tile_index) * TILE_DEFAULT_SIZE[0],
+                'PLAYER_X ',
+                x_with_offset,
+                # 'COMPARE HEIGHTS OF PLAYER WITH HEIGHT OF SURFACE',
+                # self.y + self.height <= self.level_surface_data['tiles'][player_x_tile_index + 1]['y_position'],
+                # 'COMPARE PLAYER IS NOT IN EDGE',
+                # x_with_offset < (((player_x_tile_index + 1) * TILE_DEFAULT_SIZE[0]) + PLAYER_SPRINTING_SPEED),
+                'CURRENT_TILE_INDEX ', player_x_tile_index,
+                'NEXT_TILE_INDEX ', player_x_tile_index - 1,          
+            )
+            if x_with_offset > ((player_x_tile_index * TILE_DEFAULT_SIZE[0]) + PLAYER_SPRINTING_SPEED):
+                return True
+            else:
+                if y_with_offset <= self.level_surface_data['tiles'][player_x_tile_index - 1]['y_position']:
+                    return True
+        return False
+
     def is_landed(self):
         return self.check_collision_with_land()
 

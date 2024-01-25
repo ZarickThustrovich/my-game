@@ -16,6 +16,8 @@ from .player import (
 )
 from .environment import (
     SURFACE_BOTTOM_BORDER,
+    ENVIRONMENT_SPRITES_FOLDER,
+    TILE_DEFAULT_SIZE,
 )
 from .enemy import (
     ENEMY_MOVING_SPEED,
